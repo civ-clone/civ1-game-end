@@ -97,7 +97,11 @@ export const getRules = (game: RespawnGame): Defeated[] => [
         )
         .map((advance: Advance) => advance.sourceClass<typeof Advance>())
         .filter(
-          (AdvanceType: typeof Advance, index: number, all): boolean =>
+          (
+            AdvanceType: typeof Advance,
+            index: number,
+            all: (typeof Advance)[]
+          ): boolean =>
             all.indexOf(AdvanceType) === index &&
             others.some((other: Player): boolean =>
               game.playerResearch.getByPlayer(other).completed(AdvanceType)
