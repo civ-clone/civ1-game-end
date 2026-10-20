@@ -5,7 +5,8 @@ import { conquestBonus } from './scoring';
 
 /**
  * The conquest bonus `player` scores, or `null` unless they conquered the world. The opponents are every other player
- * the game started with: each has a `PlayerWorld` from the start, kept when they are destroyed.
+ * the game started with: each has a `PlayerWorld` from the start, kept when they are destroyed. v474.05 counts turns from
+ * 0 at 4000 BC where ours start at 1, so its turn is one less.
  */
 export const conquestBonusFor = (
   player: Player,
@@ -22,7 +23,7 @@ export const conquestBonusFor = (
     return null;
   }
 
-  return conquestBonus(gameResult.turn(), playerWorldRegistry.length - 1);
+  return conquestBonus(gameResult.turn() - 1, playerWorldRegistry.length - 1);
 };
 
 export default conquestBonusFor;

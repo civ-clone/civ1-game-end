@@ -25,7 +25,8 @@ export const getRules = (
   engine: Engine = engineInstance
 ): Start[] => [
   // The leader is warned once, on the first turn within 20 years of the end. v474.05 repeats it every turn; once is
-  //  enough. It's the turn the year crosses the line, so a game loaded later doesn't warn again.
+  //  enough. It's the turn the year crosses the line, so a game loaded on a later turn doesn't warn again (one saved
+  //  between turns and loaded on the crossing turn itself can).
   new Start(
     'civ1-game-end:turn/start/retirement-warning',
     new Criterion((): boolean => gameResultRegistry.get() === null),

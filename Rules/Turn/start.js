@@ -12,7 +12,8 @@ const Start_1 = require("@civ-clone/core-turn-based-game/Rules/Start");
 const level_1 = require("@civ-clone/civ1-difficulty/level");
 const getRules = (gameDifficultyRegistry = GameDifficultyRegistry_1.instance, gameResultRegistry = GameResultRegistry_1.instance, year = Year_1.instance, engine = Engine_1.instance) => [
     // The leader is warned once, on the first turn within 20 years of the end. v474.05 repeats it every turn; once is
-    //  enough. It's the turn the year crosses the line, so a game loaded later doesn't warn again.
+    //  enough. It's the turn the year crosses the line, so a game loaded on a later turn doesn't warn again (one saved
+    //  between turns and loaded on the crossing turn itself can).
     new Start_1.default('civ1-game-end:turn/start/retirement-warning', new Criterion_1.default(() => gameResultRegistry.get() === null), new Criterion_1.default((turn) => {
         const warningYear = (0, scoring_1.endYear)((0, level_1.levelOf)(gameDifficultyRegistry)) - scoring_1.RETIREMENT_WARNING_YEARS;
         return (turn.value() > 1 &&

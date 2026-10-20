@@ -7,9 +7,9 @@ export const endYear = (level: number): number => 2100 - 20 * level;
 // How many years before the end the leader is warned they will retire.
 export const RETIREMENT_WARNING_YEARS = 20;
 
-// The score for conquering the world on `turn` against `opponents` computer players: 1,000 on turn 550 with six
-//  opponents, 2 more for each turn sooner (`Overlay_20.cs` L1552-1562). It replaces the Civilization Score when it's
-//  higher, which is how v474.05 shows it ("Bonus Score").
+// The score for conquering the world on v474.05's `turn` (0 at 4000 BC) against `opponents` computer players: 1,000 on
+//  turn 550 with six opponents, 2 more for each turn sooner (`Overlay_20.cs` L1552-1562). It replaces the Civilization
+//  Score when it's higher, which is how v474.05 shows it ("Bonus Score").
 export const conquestBonus = (turn: number, opponents: number): number =>
   400 + 2 * (550 - turn) + 100 * opponents;
 
