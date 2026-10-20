@@ -17,7 +17,12 @@ A host ends the game for `retired` itself, when the player chooses to retire.
 `civ1-game-end:turn/start/retirement-warning` emits `game:retirement-warning` once, on the first turn within 20 years of
 the end. `civ1-game-end:game-over/emit` emits `game:over` with the `GameResult`. With nobody playing (every client a
 computer player's), `civ1-game-end:game-over/carry-on-unattended` completes the scoring at once, so the game carries on
-rather than waiting for someone to choose to keep playing.
+rather than waiting for someone to choose to keep playing. A host with a client of its own that isn't an `AIClient`
+counts as someone playing.
+
+The turn loop waits for the players only at the end of a turn. An ending part-way through one (a spaceship landing, the
+human destroyed) lets the other players finish that turn first. After the human is destroyed nobody can keep playing,
+so the game waits for good.
 
 ## Scoring
 

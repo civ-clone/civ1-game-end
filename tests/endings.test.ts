@@ -174,7 +174,7 @@ describe('conquest', (): void => {
     rules.process(End, turn);
 
     expect(conquestBonusFor(you, gameResult, playerWorlds)).to.equal(
-      400 + 2 * 500 + 200
+      400 + 2 * (550 - 49) + 200
     );
     expect(conquestBonusFor(rival, gameResult, playerWorlds)).to.equal(null);
   });
