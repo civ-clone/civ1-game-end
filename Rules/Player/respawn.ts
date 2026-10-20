@@ -59,8 +59,26 @@ export const getRules = (game: RespawnGame): Defeated[] => [
         return;
       }
 
-      const player = addPlayer(game, site.map()),
-        research = game.playerResearch.getByPlayer(player),
+      // It starts with no advances of its own: v474.05 clears them, then gives it only those below. civ1-science's
+      //  random starting advances are for the start of the game, so they're held off while it's added.
+      const startingAdvances = game.rules.getById(
+          'civ1-science:player/added/starting-advances'
+        ),
+        startingAdvancesEnabled = startingAdvances?.enabled() ?? false;
+
+      startingAdvances?.disable();
+
+      let player: Player;
+
+      try {
+        player = addPlayer(game, site.map());
+      } finally {
+        if (startingAdvancesEnabled) {
+          startingAdvances!.enable();
+        }
+      }
+
+      const research = game.playerResearch.getByPlayer(player),
         humans = game.players
           .entries()
           .filter((other: Player): boolean => isHuman(other, game.clients)),

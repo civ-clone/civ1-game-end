@@ -20,6 +20,7 @@ const getRules = (game) => [
     //  has left the game. v474.05 brings each slot back once, as the other civilization of its colour; colours aren't
     //  modelled here, so a civilization comes back while there are civilizations left to come back as.
     new Defeated_1.default('civ1-game-end:player/defeated/respawn', new Low_1.default(), new Criterion_1.default((player) => !(0, isHuman_1.default)(player, game.clients)), new Criterion_1.default(() => game.turn.value() - 1 <= (0, exports.lastRespawnTurn)((0, level_1.levelOf)(game.difficulty))), new Criterion_1.default(() => game.civilizations.length > 0), new Effect_1.default((defeated) => {
+        var _a;
         const landMasses = game.landMasses.entries(), site = (0, respawnSite_1.default)({
             ad: game.year.value() > 0,
             cities: game.cities.entries(),
@@ -32,7 +33,20 @@ const getRules = (game) => [
         if (site === null) {
             return;
         }
-        const player = (0, addPlayer_1.default)(game, site.map()), research = game.playerResearch.getByPlayer(player), humans = game.players
+        // It starts with no advances of its own: v474.05 clears them, then gives it only those below. civ1-science's
+        //  random starting advances are for the start of the game, so they're held off while it's added.
+        const startingAdvances = game.rules.getById('civ1-science:player/added/starting-advances'), startingAdvancesEnabled = (_a = startingAdvances === null || startingAdvances === void 0 ? void 0 : startingAdvances.enabled()) !== null && _a !== void 0 ? _a : false;
+        startingAdvances === null || startingAdvances === void 0 ? void 0 : startingAdvances.disable();
+        let player;
+        try {
+            player = (0, addPlayer_1.default)(game, site.map());
+        }
+        finally {
+            if (startingAdvancesEnabled) {
+                startingAdvances.enable();
+            }
+        }
+        const research = game.playerResearch.getByPlayer(player), humans = game.players
             .entries()
             .filter((other) => (0, isHuman_1.default)(other, game.clients)), others = game.players
             .entries()

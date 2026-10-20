@@ -26,10 +26,11 @@ export type RespawnSiteOptions = {
 /**
  * Where a destroyed civilization comes back, as v474.05 looks for it (`StartGameMenu.cs` `F5_0000_07c7`): an empty
  * square of land with no hut, at least 10 from the nearest city, good to build on, on a continent with room for 32
- * more cities (one fewer each 32 turns), and, after AD 1, a continent nobody has a city on. Its 2,000 random tries
- * relax the distance by 1 every 64 and the ground every 32, while the room asked for grows by 1 every 64
- * (`+ tryCount / 64`, as the decompile has it), so late tries only take big continents. Here each step is tried in
- * turn, choosing at random among the squares that pass, and `null` means there is nowhere, as 2,000 failed tries do.
+ * more cities (one fewer each 32 turns), after AD 1 a continent nobody has a city on, and away from the poles. Its
+ * 2,000 random tries relax the distance by 1 every 64 and the ground every 32, while the room asked for grows by 1
+ * every 64 (`+ tryCount / 64`, as the decompile has it), so late tries only take big continents. Here each step is
+ * tried in turn, choosing at random among the squares that pass, and `null` means there is nowhere, as 2,000 failed
+ * tries do.
  */
 export const respawnSite = ({
   ad,
@@ -41,6 +42,14 @@ export const respawnSite = ({
   units,
 }: RespawnSiteOptions): Tile | null => {
   const cityTiles = cities.map((city: City) => city.tile()),
+    // v474.05 tries x 8-71 and y 8-41 of its 80 × 50 map: never within 8 rows of either pole. Scaled to this map, as
+    //  the poles are the only edges it has.
+    polar = (tile: Tile): boolean => {
+      const height = tile.map().height(),
+        margin = Math.floor((height * 8) / 50);
+
+      return tile.y() < margin || tile.y() >= height - margin;
+    },
     occupied = new Set<Tile>([
       ...cityTiles,
       ...units.map((unit: Unit) => unit.tile()),
@@ -73,11 +82,12 @@ export const respawnSite = ({
     return nearestCity.get(tile)!;
   };
 
-  // 2,000 tries: the distance relaxes 31 times, and the ground (from start terrain to any land) after 1,000.
+  // 2,000 tries: the distance relaxes 31 times. The ground relaxes from good to any by try 384: v474.05 rejects a square
+  //  scoring below `12 − tries / 32`, and only Grassland, Plains and River score at all (8 to 15).
   for (let tries = 0; tries <= 2000; tries += 64) {
     const minimumDistance = 10 - Math.floor(tries / 64),
       minimumRoom = 32 - Math.floor(turn / 32) + Math.floor(tries / 64),
-      startTerrainOnly = tries < 1000,
+      startTerrainOnly = tries < 384,
       candidates = landMasses
         .filter(
           (landMass: LandMass): boolean =>
@@ -88,6 +98,7 @@ export const respawnSite = ({
         .filter(
           (tile: Tile): boolean =>
             tile.isLand() &&
+            !polar(tile) &&
             !occupied.has(tile) &&
             goodyHuts.getByTile(tile) === null &&
             (!startTerrainOnly || isStartTerrain(tile)) &&
