@@ -14,6 +14,11 @@ applies again once it has.
 
 A host ends the game for `retired` itself, when the player chooses to retire.
 
+`civ1-game-end:player/defeated/respawn` brings a destroyed computer civilization back, until turn
+`350 − 50 × level` (v474.05's count, from 0 at 4000 BC): a new civilization (`civ1-player`'s `addPlayer`), with a
+Settlers on a site `lib/respawnSite` finds and, half the time each, the advances the human knows that another
+civilization knows too. It emits `player:respawned`. While a civilization can still come back, conquest can't happen.
+
 `civ1-game-end:turn/start/retirement-warning` emits `game:retirement-warning` once, on the first turn within 20 years of
 the end. `civ1-game-end:game-over/emit` emits `game:over` with the `GameResult`. With nobody playing (every client a
 computer player's), `civ1-game-end:game-over/carry-on-unattended` completes the scoring at once, so the game carries on
