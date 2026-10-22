@@ -1,6 +1,6 @@
 {
   "name": "@civ-clone/civ1-game-end",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "How a game of Civilization ends: conquest, the final year, a spaceship landing, retiring, and your civilization destroyed.",
   "main": "index.js",
   "repository": "git@github.com:civ-clone/civ1-game-end.git",
