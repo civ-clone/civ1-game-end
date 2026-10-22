@@ -11,15 +11,22 @@ const Criterion_1 = require("@civ-clone/core-rule/Criterion");
 const Effect_1 = require("@civ-clone/core-rule/Effect");
 const End_1 = require("@civ-clone/core-turn-based-game/Rules/End");
 const endGame_1 = require("@civ-clone/core-turn-based-game/lib/endGame");
+const isBarbarian_1 = require("@civ-clone/base-civilization-barbarian/isBarbarian");
 const scoring_1 = require("../../lib/scoring");
 const level_1 = require("@civ-clone/civ1-difficulty/level");
+// The players that are civilizations: everyone but the barbarians.
+const civilizations = (players) => players.filter((player) => !(0, isBarbarian_1.default)(player));
 // The endings v474.05 checks once every player has moved (`GameEngine.cs` L361-436). The first to apply ends the game,
 //  and none applies again after that.
 const getRules = (playerRegistry = PlayerRegistry_1.instance, playerWorldRegistry = PlayerWorldRegistry_1.instance, gameResultRegistry = GameResultRegistry_1.instance, gameDifficultyRegistry = GameDifficultyRegistry_1.instance, ruleRegistry = RuleRegistry_1.instance, year = Year_1.instance) => [
     // One civilization is left, from a game that started with others (`StartGameMenu.cs` L557-570): it conquered the
-    //  world, whoever destroyed the rest. There are no barbarians yet; they won't count when there are.
-    new End_1.default('civ1-game-end:turn/end/conquest', new Criterion_1.default(() => playerRegistry.length === 1 && playerWorldRegistry.length > 1), new Effect_1.default((turn) => {
-        const [winner] = playerRegistry.entries();
+    //  world, whoever destroyed the rest. The barbarians are no civilization: they neither win nor stand in the way
+    //  (civ-clone/web-renderer#169).
+    new End_1.default('civ1-game-end:turn/end/conquest', new Criterion_1.default(() => civilizations(playerRegistry.entries()).length === 1 &&
+        civilizations(playerWorldRegistry
+            .entries()
+            .map((playerWorld) => playerWorld.player())).length > 1), new Effect_1.default((turn) => {
+        const [winner] = civilizations(playerRegistry.entries());
         (0, endGame_1.default)('conquest', winner, gameResultRegistry, ruleRegistry, turn);
     })),
     // The final year has come: the dynasty ends, and no one wins.
