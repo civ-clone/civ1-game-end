@@ -29,6 +29,7 @@
     "typescript": "^4.0.0"
   },
   "dependencies": {
+    "@civ-clone/base-civilization-barbarian": "^0.1.0",
     "@civ-clone/civ1-difficulty": "github:civ-clone/civ1-difficulty",
     "@civ-clone/civ1-player": "github:civ-clone/civ1-player",
     "@civ-clone/civ1-world": "github:civ-clone/civ1-world",

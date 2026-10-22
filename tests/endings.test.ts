@@ -1,5 +1,6 @@
 import { Chieftain, Emperor } from '@civ-clone/civ1-difficulty/Difficulties';
 import AIClient from '@civ-clone/core-ai-client/AIClient';
+import Barbarian from '@civ-clone/base-civilization-barbarian/Barbarian';
 import Client from '@civ-clone/core-client/Client';
 import ClientRegistry from '@civ-clone/core-client/ClientRegistry';
 import Defeated from '@civ-clone/core-player/Rules/Defeated';
@@ -46,8 +47,26 @@ const setUp = (level: typeof Difficulty = Chieftain, human = true) => {
     over: GameResult[] = [],
     warnings: number[] = [];
 
-  // The worlds are only counted: one for each player the game started with.
-  const playerWorlds = { length: 3 } as unknown as PlayerWorldRegistry;
+  // The worlds are only counted, one for each player the game started with, and asked whose they are.
+  const worlds = [you, rival, other],
+    playerWorlds = {
+      get length() {
+        return worlds.length;
+      },
+      entries: () => worlds.map((player) => ({ player: () => player })),
+    } as unknown as PlayerWorldRegistry;
+
+  // The barbarians (civ-clone/web-renderer#169), brought in part-way through: a player with a world, no civilization.
+  const addBarbarians = (): Player => {
+    const barbarians = new Player(rules);
+
+    barbarians.setCivilization(new Barbarian());
+    players.register(barbarians);
+    clients.register(new AIClient(barbarians));
+    worlds.push(barbarians);
+
+    return barbarians;
+  };
 
   difficulty.set(level);
   players.register(you, rival, other);
@@ -70,7 +89,9 @@ const setUp = (level: typeof Difficulty = Chieftain, human = true) => {
   engine.on('game:retirement-warning', (year: number) => warnings.push(year));
 
   return {
+    addBarbarians,
     gameResult,
+    worlds,
     other,
     over,
     players,
@@ -177,6 +198,47 @@ describe('conquest', (): void => {
       400 + 2 * (550 - 49) + 200
     );
     expect(conquestBonusFor(rival, gameResult, playerWorlds)).to.equal(null);
+  });
+
+  it('is neither won nor blocked by the barbarians, who are no opponent', (): void => {
+    const {
+      addBarbarians,
+      gameResult,
+      over,
+      players,
+      playerWorlds,
+      rival,
+      other,
+      rules,
+      turn,
+      you,
+    } = setUp();
+
+    addBarbarians();
+    turn.set(50);
+    players.unregister(rival, other);
+    rules.process(End, turn);
+
+    expect(over.length).to.equal(1);
+    expect(over[0].winner()).to.equal(you);
+    // Two opponents, not three.
+    expect(conquestBonusFor(you, gameResult, playerWorlds)).to.equal(
+      400 + 2 * (550 - 49) + 200
+    );
+  });
+
+  it('does not end a game of one civilization and the barbarians', (): void => {
+    const { addBarbarians, over, players, rival, other, rules, turn, worlds } =
+      setUp();
+
+    // A game that started with one civilization: the rivals never existed.
+    players.unregister(rival, other);
+    worlds.splice(1);
+    addBarbarians();
+    turn.set(50);
+    rules.process(End, turn);
+
+    expect(over).to.deep.equal([]);
   });
 });
 
