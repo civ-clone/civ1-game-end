@@ -9,6 +9,7 @@ import Player from '@civ-clone/core-player/Player';
 import Spawn from '@civ-clone/core-player/Rules/Spawn';
 import isHuman from '@civ-clone/civ1-difficulty/isHuman';
 import { levelOf } from '@civ-clone/civ1-difficulty/level';
+import inheritedAdvances from '../../lib/inheritedAdvances';
 import respawnSite from '../../lib/respawnSite';
 
 export type RespawnGame = AddPlayerGame &
@@ -79,39 +80,25 @@ export const getRules = (game: RespawnGame): Defeated[] => [
       }
 
       const research = game.playerResearch.getByPlayer(player),
-        humans = game.players
-          .entries()
-          .filter((other: Player): boolean => isHuman(other, game.clients)),
         others = game.players
           .entries()
-          .filter(
-            (other: Player): boolean =>
-              other !== player && !humans.includes(other)
-          );
+          .filter((other: Player): boolean => other !== player);
 
-      // It knows each advance the human does that another civilization also knows, half the time. v474.05 gives it
-      //  those the human knows and didn't discover first; who discovered an advance first isn't recorded here.
-      humans
-        .flatMap((human: Player): Advance[] =>
-          game.playerResearch.getByPlayer(human).complete()
-        )
-        .map((advance: Advance) => advance.sourceClass<typeof Advance>())
-        .filter(
-          (
-            AdvanceType: typeof Advance,
-            index: number,
-            all: (typeof Advance)[]
-          ): boolean =>
-            all.indexOf(AdvanceType) === index &&
-            others.some((other: Player): boolean =>
-              game.playerResearch.getByPlayer(other).completed(AdvanceType)
-            )
-        )
-        .forEach((AdvanceType: typeof Advance): void => {
-          if (game.rng() < 0.5) {
-            research.addAdvance(AdvanceType);
-          }
-        });
+      // Half the advances it may inherit (`lib/inheritedAdvances`): what the human knows that another civilization
+      //  also knows, or, with no human seat, what any two civilizations know (civ-clone/web-renderer#609).
+      inheritedAdvances(
+        others,
+        (other: Player): boolean => isHuman(other, game.clients),
+        (other: Player): (typeof Advance)[] =>
+          game.playerResearch
+            .getByPlayer(other)
+            .complete()
+            .map((advance: Advance) => advance.sourceClass<typeof Advance>())
+      ).forEach((AdvanceType: typeof Advance): void => {
+        if (game.rng() < 0.5) {
+          research.addAdvance(AdvanceType);
+        }
+      });
 
       game.rules.process(Spawn, player, site);
 
