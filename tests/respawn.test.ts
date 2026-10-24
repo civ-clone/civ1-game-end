@@ -7,6 +7,7 @@ import Tile from '@civ-clone/core-world/Tile';
 import Unit from '@civ-clone/core-unit/Unit';
 import { expect } from 'chai';
 import { lastRespawnTurn } from '../Rules/Player/respawn';
+import inheritedAdvances from '../lib/inheritedAdvances';
 import respawnSite from '../lib/respawnSite';
 
 // Just enough of a world for `respawnSite`: a 40 × 40 map, each tile of its own terrain, and landmasses as lists.
@@ -121,5 +122,44 @@ describe('lastRespawnTurn', (): void => {
     expect([0, 1, 2, 3, 4].map(lastRespawnTurn)).to.deep.equal([
       350, 300, 250, 200, 150,
     ]);
+  });
+});
+
+describe('inheritedAdvances', (): void => {
+  // Players as strings, advances as strings: what each knows is all the rule reads.
+  const knows: { [player: string]: string[] } = {
+      Dom: ['Alphabet', 'Bronze Working', 'Masonry'],
+      Rome: ['Alphabet', 'Ceremonial Burial', 'Masonry'],
+      Zulu: ['Ceremonial Burial', 'Pottery'],
+      Greece: [],
+    },
+    completed = (player: string): string[] => knows[player],
+    human = (player: string): boolean => player === 'Dom';
+
+  it('with a person playing, is what they know that another civilization also knows', (): void => {
+    expect(
+      inheritedAdvances(['Dom', 'Rome', 'Zulu', 'Greece'], human, completed)
+    ).to.deep.equal(['Alphabet', 'Masonry']);
+  });
+
+  it('with no human seat, is what any two civilizations know (civ-clone/web-renderer#609)', (): void => {
+    expect(
+      inheritedAdvances(['Rome', 'Zulu', 'Greece'], () => false, completed)
+    ).to.deep.equal(['Ceremonial Burial']);
+  });
+
+  it('is nothing when nobody shares an advance, or there is nobody', (): void => {
+    expect(
+      inheritedAdvances(['Zulu', 'Greece'], () => false, completed)
+    ).to.deep.equal([]);
+    expect(inheritedAdvances([], () => false, completed)).to.deep.equal([]);
+  });
+
+  it('with a person, two computer civilizations sharing an advance the person lacks is not enough', (): void => {
+    expect(
+      inheritedAdvances(['Dom', 'Rome', 'Zulu'], human, (player) =>
+        player === 'Dom' ? [] : knows[player]
+      )
+    ).to.deep.equal([]);
   });
 });

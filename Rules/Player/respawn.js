@@ -9,6 +9,7 @@ const Low_1 = require("@civ-clone/core-rule/Priorities/Low");
 const Spawn_1 = require("@civ-clone/core-player/Rules/Spawn");
 const isHuman_1 = require("@civ-clone/civ1-difficulty/isHuman");
 const level_1 = require("@civ-clone/civ1-difficulty/level");
+const inheritedAdvances_1 = require("../../lib/inheritedAdvances");
 const respawnSite_1 = require("../../lib/respawnSite");
 // The last turn, in v474.05's count (0 at 4000 BC), on which a destroyed civilization comes back: 350 on Chieftain,
 //  50 fewer for each level up, to 150 on Emperor (`StartGameMenu.cs` L589; Rome on 640K a Day pp250-251).
@@ -46,19 +47,15 @@ const getRules = (game) => [
                 startingAdvances.enable();
             }
         }
-        const research = game.playerResearch.getByPlayer(player), humans = game.players
+        const research = game.playerResearch.getByPlayer(player), others = game.players
             .entries()
-            .filter((other) => (0, isHuman_1.default)(other, game.clients)), others = game.players
-            .entries()
-            .filter((other) => other !== player && !humans.includes(other));
-        // It knows each advance the human does that another civilization also knows, half the time. v474.05 gives it
-        //  those the human knows and didn't discover first; who discovered an advance first isn't recorded here.
-        humans
-            .flatMap((human) => game.playerResearch.getByPlayer(human).complete())
-            .map((advance) => advance.sourceClass())
-            .filter((AdvanceType, index, all) => all.indexOf(AdvanceType) === index &&
-            others.some((other) => game.playerResearch.getByPlayer(other).completed(AdvanceType)))
-            .forEach((AdvanceType) => {
+            .filter((other) => other !== player);
+        // Half the advances it may inherit (`lib/inheritedAdvances`): what the human knows that another civilization
+        //  also knows, or, with no human seat, what any two civilizations know (civ-clone/web-renderer#609).
+        (0, inheritedAdvances_1.default)(others, (other) => (0, isHuman_1.default)(other, game.clients), (other) => game.playerResearch
+            .getByPlayer(other)
+            .complete()
+            .map((advance) => advance.sourceClass())).forEach((AdvanceType) => {
             if (game.rng() < 0.5) {
                 research.addAdvance(AdvanceType);
             }
