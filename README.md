@@ -34,3 +34,11 @@ so the game waits for good.
 `lib/scoring.ts` has the numbers: the end year, the conquest bonus (`400 + 2 × (550 − turn) + 100 × opponents`, which
 replaces the Civilization Score when it's higher), the rating (`⌊score × (level + 1) / 50⌋`%) and the famous leader a
 rating exceeds. `conquestBonusFor(player, …)` gives the bonus a player has scored, if they conquered the world.
+
+## Shared with other rulesets
+
+The mechanisms are in `base-game-end`, numbered here: the conquest test and its bonus (`lib/conquest`), the last year and
+the warning before it (`lib/year`), the numbers that move with the level (`lib/byLevel`) and what a civilization coming
+back inherits (`lib/inheritedAdvances`, re-exported from its old path). `lib/respawnSite` and the respawn rule itself
+stay here: the site search is v474.05's, on Civ1's terrains and distances, and the rule adds the player with
+`civ1-player` and holds off `civ1-science`'s starting advances.
