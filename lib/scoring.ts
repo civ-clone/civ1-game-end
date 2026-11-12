@@ -1,8 +1,10 @@
 // The numbers Civilization ends a game by, from v474.05 (OpenCivOne's decompile of it).
 
+import byLevel from '@civ-clone/base-game-end/lib/byLevel';
+
 // The year the game ends in: 2100 on Chieftain (level 0), 20 years sooner for each level up, to 2020 on Emperor
 //  (`GameEngine.cs` L383-415; Rome on 640K a Day, Table 2-1, p8).
-export const endYear = (level: number): number => 2100 - 20 * level;
+export const endYear: (level: number) => number = byLevel(2100, -20);
 
 // How many years before the end the leader is warned they will retire.
 export const RETIREMENT_WARNING_YEARS = 20;

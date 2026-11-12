@@ -1,8 +1,7 @@
 import { GameResultRegistry } from '@civ-clone/core-turn-based-game/GameResultRegistry';
 import Player from '@civ-clone/core-player/Player';
 import { PlayerWorldRegistry } from '@civ-clone/core-player-world/PlayerWorldRegistry';
-import PlayerWorld from '@civ-clone/core-player-world/PlayerWorld';
-import isBarbarian from '@civ-clone/base-civilization-barbarian/isBarbarian';
+import { conquestBonusFor as baseConquestBonusFor } from '@civ-clone/base-game-end/lib/conquest';
 import { conquestBonus } from './scoring';
 
 /**
@@ -15,24 +14,13 @@ export const conquestBonusFor = (
   player: Player,
   gameResultRegistry: GameResultRegistry,
   playerWorldRegistry: PlayerWorldRegistry
-): number | null => {
-  const gameResult = gameResultRegistry.get();
-
-  if (
-    gameResult === null ||
-    gameResult.reason() !== 'conquest' ||
-    gameResult.winner() !== player
-  ) {
-    return null;
-  }
-
-  const civilizations = playerWorldRegistry
-    .entries()
-    .filter(
-      (playerWorld: PlayerWorld): boolean => !isBarbarian(playerWorld.player())
-    ).length;
-
-  return conquestBonus(gameResult.turn() - 1, civilizations - 1);
-};
+): number | null =>
+  baseConquestBonusFor(
+    player,
+    gameResultRegistry,
+    playerWorldRegistry,
+    (turn: number, opponents: number): number =>
+      conquestBonus(turn - 1, opponents)
+  );
 
 export default conquestBonusFor;

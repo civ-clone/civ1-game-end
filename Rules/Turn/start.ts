@@ -17,6 +17,7 @@ import Effect from '@civ-clone/core-rule/Effect';
 import Start from '@civ-clone/core-turn-based-game/Rules/Start';
 import Turn from '@civ-clone/core-turn-based-game/Turn';
 import { levelOf } from '@civ-clone/civ1-difficulty/level';
+import { yearCrossed } from '@civ-clone/base-game-end/lib/year';
 
 export const getRules = (
   gameDifficultyRegistry: GameDifficultyRegistry = gameDifficultyRegistryInstance,
@@ -34,11 +35,7 @@ export const getRules = (
       const warningYear =
         endYear(levelOf(gameDifficultyRegistry)) - RETIREMENT_WARNING_YEARS;
 
-      return (
-        turn.value() > 1 &&
-        year.value(turn.value()) >= warningYear &&
-        year.value(turn.value() - 1) < warningYear
-      );
+      return yearCrossed(year, turn.value(), warningYear);
     }),
     new Effect((): void => {
       engine.emit(

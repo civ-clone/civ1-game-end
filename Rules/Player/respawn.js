@@ -7,14 +7,14 @@ const Defeated_1 = require("@civ-clone/core-player/Rules/Defeated");
 const Effect_1 = require("@civ-clone/core-rule/Effect");
 const Low_1 = require("@civ-clone/core-rule/Priorities/Low");
 const Spawn_1 = require("@civ-clone/core-player/Rules/Spawn");
+const byLevel_1 = require("@civ-clone/base-game-end/lib/byLevel");
 const isHuman_1 = require("@civ-clone/civ1-difficulty/isHuman");
 const level_1 = require("@civ-clone/civ1-difficulty/level");
 const inheritedAdvances_1 = require("../../lib/inheritedAdvances");
 const respawnSite_1 = require("../../lib/respawnSite");
 // The last turn, in v474.05's count (0 at 4000 BC), on which a destroyed civilization comes back: 350 on Chieftain,
 //  50 fewer for each level up, to 150 on Emperor (`StartGameMenu.cs` L589; Rome on 640K a Day pp250-251).
-const lastRespawnTurn = (level) => 350 - 50 * level;
-exports.lastRespawnTurn = lastRespawnTurn;
+exports.lastRespawnTurn = (0, byLevel_1.default)(350, -50);
 const getRules = (game) => [
     // A computer civilization destroyed early comes back, as a new civilization with a Settlers somewhere empty, so the
     //  world can't be conquered for good before `lastRespawnTurn` (civ-clone/web-renderer#178). `Low`, after the player
