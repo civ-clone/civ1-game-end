@@ -20,6 +20,8 @@
   },
   "devDependencies": {
     "@civ-clone/base-civilization-barbarian": "^0.1.0",
+    "@civ-clone/core-civilization": "^0.1.9",
+    "@civ-clone/core-science": "^0.1.9",
     "@types/chai": "^4.0.0",
     "@types/mocha": "^10.0.0",
     "@types/node": "^16.0.0",
@@ -30,7 +32,7 @@
     "typescript": "^4.0.0"
   },
   "dependencies": {
-    "@civ-clone/base-game-end": "^0.1.0",
+    "@civ-clone/base-game-end": "^0.1.1",
     "@civ-clone/civ1-difficulty": "github:civ-clone/civ1-difficulty",
     "@civ-clone/civ1-player": "github:civ-clone/civ1-player",
     "@civ-clone/civ1-world": "github:civ-clone/civ1-world",
@@ -45,7 +47,6 @@
     "@civ-clone/core-player": "^0.1.10",
     "@civ-clone/core-player-world": "^0.1.13",
     "@civ-clone/core-rule": "^0.1.6",
-    "@civ-clone/core-science": "^0.1.7",
     "@civ-clone/core-spaceship": "^0.1.9",
     "@civ-clone/core-turn-based-game": "^0.1.9",
     "@civ-clone/core-unit": "^0.1.28",
