@@ -20,6 +20,8 @@
   },
   "devDependencies": {
     "@civ-clone/base-civilization-barbarian": "^0.1.0",
+    "@civ-clone/core-civilization": "^0.1.9",
+    "@civ-clone/core-science": "^0.1.9",
     "@types/chai": "^4.0.0",
     "@types/mocha": "^10.0.0",
     "@types/node": "^16.0.0",
